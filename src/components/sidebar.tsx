@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/sheet"
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: Home },
+  { href: "/", label: "Dashboard", icon: Home },
   { href: "/properties", label: "Properties", icon: Building2 },
   { href: "/tenants", label: "Tenants", icon: Users },
   { href: "/leases", label: "Leases", icon: FileText },
@@ -43,8 +43,9 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
       <nav className="flex-1 space-y-1 px-2 py-4">
         {navItems.map((item) => {
           const isActive =
-            pathname === item.href ||
-            (item.href !== "/dashboard" && pathname.startsWith(item.href))
+            item.href === "/"
+              ? pathname === "/"
+              : pathname.startsWith(item.href)
           return (
             <Link
               key={item.href}

@@ -23,8 +23,8 @@
 - [x] Test API auth: request without API key → 401 with error message
 
 ## Medium Priority
-- [ ] Loading skeletons for each route group
-- [ ] Mobile responsive sidebar (Sheet component)
+- [x] Loading skeletons for each route group
+- [x] Mobile responsive sidebar (Sheet component) — already implemented with Sheet + hamburger menu
 - [ ] File upload handler for lease PDFs
 
 ## Low Priority
@@ -155,6 +155,15 @@
   - **Lease test:** Created lease → unit status updated to OCCUPIED, tenant now visible in owner-scoped tenant list
   - **Billing test:** generateRent for 2026-02 → 1 charge ($1,200), idempotent on re-run (0 charges)
   - **Payment test:** $1,200 CHECK payment → auto-allocated to rent charge, charge status → PAID
+  - Build passes with no TypeScript errors
+
+- [x] **Phase 9: Loading Skeletons + Sidebar Fix**
+  - Fixed sidebar dashboard link: `/dashboard` → `/` (route group serves at root)
+  - Fixed sidebar `isActive` logic for root path
+  - Created `loading.tsx` for properties, tenants, leases, billing route groups
+  - Each skeleton matches the layout of its corresponding page (header + table rows)
+  - Billing skeleton includes stat cards + table
+  - Mobile sidebar already fully implemented (Sheet + hamburger menu) — marked complete
   - Build passes with no TypeScript errors
 
 ## Notes

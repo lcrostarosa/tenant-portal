@@ -6,8 +6,8 @@
 - [x] **API routes** (`src/app/api/v1/...`) — REST API with API key auth for external integrations
 - [x] **API key auth** (`src/lib/api-auth.ts`) — requireApiKey() helper for API routes
 - [x] **Validation schemas** (`src/lib/validations/*.ts`) — Zod schemas for all entities
-- [ ] **Dashboard layout** — sidebar navigation, shared components (page-header, breadcrumbs, empty-state, status-badge, delete-dialog)
-- [ ] **Properties + Units CRUD** — pages, forms, server actions
+- [x] **Dashboard layout** — sidebar navigation, shared components (page-header, breadcrumbs, empty-state, status-badge, delete-dialog)
+- [x] **Properties + Units CRUD** — pages, forms, server actions
 - [ ] **Tenants + Leases CRUD** — pages, forms, server actions with business rules
 - [ ] **Billing** — charges generation, payment recording with allocation logic
 - [ ] Run migration: `npx prisma migrate dev --name init`
@@ -97,6 +97,19 @@
   - `src/app/api/v1/payments/route.ts` — GET (by tenantId), POST (record with auto-allocation)
   - Pattern: requireApiKey() → validate → service call → JSON response
   - All routes use owner-scoped service functions for authorization
+  - Build passes with no TypeScript errors
+- [x] **Phase 4: Dashboard Layout + Properties/Units CRUD**
+  - Dashboard layout already had sidebar, page-header, empty-state, status-badge, delete-dialog components
+  - `src/components/forms/property-form.tsx` — shared create/edit property form (react-hook-form + zodResolver)
+  - `src/components/forms/unit-form.tsx` — shared create/edit unit form with numeric field handling
+  - `src/app/(dashboard)/properties/page.tsx` — properties list table with unit count
+  - `src/app/(dashboard)/properties/new/page.tsx` — create property page
+  - `src/app/(dashboard)/properties/[propertyId]/page.tsx` — property detail with inline units table, tenant links, status badges
+  - `src/app/(dashboard)/properties/[propertyId]/edit/page.tsx` — edit property page
+  - `src/app/(dashboard)/properties/[propertyId]/actions.tsx` — client-side delete with confirmation dialog
+  - `src/app/(dashboard)/properties/[propertyId]/units/new/page.tsx` — add unit to property
+  - `src/app/(dashboard)/properties/[propertyId]/units/[unitId]/edit/page.tsx` — edit unit
+  - Note: Prisma Decimal fields need `Number()` conversion for TypeScript compatibility
   - Build passes with no TypeScript errors
 
 ## Notes

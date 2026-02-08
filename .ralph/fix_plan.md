@@ -28,6 +28,7 @@
 - [x] File upload handler for lease PDFs
 
 ## Low Priority
+- [x] Breadcrumb navigation (from PRD Phase 2)
 - [ ] Performance optimization
 - [ ] Extended feature set
 - [ ] Integration with external services (Paperless, webhooks)
@@ -175,6 +176,14 @@
   - Supports PDF, JPEG, PNG, WebP up to 10MB
   - Files stored at `data/uploads/{entityType}/{entityId}/{uuid}.{ext}`
   - All medium-priority tasks now complete
+  - Build passes with no TypeScript errors
+
+- [x] **Phase 11: Breadcrumb Navigation**
+  - `src/components/breadcrumbs.tsx` — client component using `usePathname()`, auto-generates crumbs from URL segments
+  - Smart label mapping for known segments (properties, tenants, leases, billing, new, edit, etc.)
+  - Home icon links to dashboard root, last crumb is non-linked current page
+  - Hidden on dashboard root (`/`), shows on all nested pages
+  - `src/app/(dashboard)/layout.tsx` — integrated above `{children}` in main content area
   - Build passes with no TypeScript errors
 
 ## Notes

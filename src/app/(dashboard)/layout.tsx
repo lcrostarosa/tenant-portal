@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { Sidebar, MobileSidebar } from "@/components/sidebar"
+import { Breadcrumbs } from "@/components/breadcrumbs"
 
 export default async function DashboardLayout({
   children,
@@ -18,7 +19,10 @@ export default async function DashboardLayout({
           <MobileSidebar />
           <span className="font-semibold">Property Manager</span>
         </header>
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto">
+          <Breadcrumbs />
+          {children}
+        </main>
       </div>
     </div>
   )

@@ -25,7 +25,7 @@
 ## Medium Priority
 - [x] Loading skeletons for each route group
 - [x] Mobile responsive sidebar (Sheet component) — already implemented with Sheet + hamburger menu
-- [ ] File upload handler for lease PDFs
+- [x] File upload handler for lease PDFs
 
 ## Low Priority
 - [ ] Performance optimization
@@ -164,6 +164,17 @@
   - Each skeleton matches the layout of its corresponding page (header + table rows)
   - Billing skeleton includes stat cards + table
   - Mobile sidebar already fully implemented (Sheet + hamburger menu) — marked complete
+  - Build passes with no TypeScript errors
+
+- [x] **Phase 10: Document Upload for Leases**
+  - `src/lib/services/document.ts` — upload to local filesystem (`data/uploads/`), DB record in Document model, delete with cleanup
+  - `src/lib/actions/document.ts` — `uploadLeaseDocumentAction`, `deleteLeaseDocumentAction` with owner-scoped authorization
+  - `src/app/api/documents/[id]/route.ts` — authenticated download route, serves files inline with correct Content-Type
+  - `src/components/lease-documents.tsx` — client component with file picker, upload progress, document list with view/delete actions
+  - `src/app/(dashboard)/leases/[leaseId]/page.tsx` — integrated LeaseDocuments with parallel data fetch
+  - Supports PDF, JPEG, PNG, WebP up to 10MB
+  - Files stored at `data/uploads/{entityType}/{entityId}/{uuid}.{ext}`
+  - All medium-priority tasks now complete
   - Build passes with no TypeScript errors
 
 ## Notes

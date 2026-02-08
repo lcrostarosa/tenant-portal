@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth"
 import { getLeaseById } from "@/lib/services/lease"
+import { getDocumentsByEntity } from "@/lib/services/document"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/table"
 import { StatusBadge } from "@/components/status-badge"
 import { LeaseActions } from "./actions"
+import { LeaseDocuments } from "@/components/lease-documents"
 import { getTenantFullName, formatCurrency, formatDate } from "@/lib/utils"
 import { Pencil } from "lucide-react"
 
@@ -24,7 +26,10 @@ export default async function LeaseDetailPage({
 }) {
   const session = await auth()
   const { leaseId } = await params
-  const lease = await getLeaseById(leaseId, session!.user.id)
+  const [lease, documents] = await Promise.all([
+    getLeaseById(leaseId, session!.user.id),
+    getDocumentsByEntity("lease", leaseId),
+  ])
 
   if (!lease) notFound()
 
@@ -100,6 +105,17 @@ export default async function LeaseDetailPage({
           </CardContent>
         </Card>
       )}
+
+      <LeaseDocuments
+        leaseId={lease.id}
+        documents={documents.map((d) => ({
+          id: d.id,
+          filename: d.filename,
+          mimeType: d.mimeType,
+          sizeBytes: d.sizeBytes,
+          createdAt: d.createdAt.toISOString(),
+        }))}
+      />
 
       <div>
         <h2 className="text-xl font-semibold mb-4">

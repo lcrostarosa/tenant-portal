@@ -12,6 +12,7 @@ async function main() {
     where: { email: "admin@example.com" },
     update: {},
     create: {
+      id: "seed-admin-user-001",
       email: "admin@example.com",
       name: "Admin",
       passwordHash,
@@ -19,7 +20,7 @@ async function main() {
     },
   })
 
-  console.log("Seeded admin user:", admin.email)
+  console.log("Seeded admin user:", admin.email, "(id:", admin.id, ")")
 }
 
 main()

@@ -1,11 +1,11 @@
 # Ralph Fix Plan
 
 ## High Priority
-- [ ] **Service layer** (`src/lib/services/*.ts`) — pure business logic for properties, units, tenants, leases, charges, payments
-- [ ] **Server actions** (`src/lib/actions/*.ts`) — thin wrappers: requireAuth() → validate → call service → revalidatePath()
+- [x] **Service layer** (`src/lib/services/*.ts`) — pure business logic for properties, units, tenants, leases, charges, payments
+- [x] **Server actions** (`src/lib/actions/*.ts`) — thin wrappers: requireAuth() → validate → call service → revalidatePath()
 - [ ] **API routes** (`src/app/api/v1/...`) — REST API with API key auth for external integrations
-- [ ] **API key auth** (`src/lib/api-auth.ts`) — requireApiKey() helper for API routes
-- [ ] **Validation schemas** (`src/lib/validations/*.ts`) — Zod schemas for all entities
+- [x] **API key auth** (`src/lib/api-auth.ts`) — requireApiKey() helper for API routes
+- [x] **Validation schemas** (`src/lib/validations/*.ts`) — Zod schemas for all entities
 - [ ] **Dashboard layout** — sidebar navigation, shared components (page-header, breadcrumbs, empty-state, status-badge, delete-dialog)
 - [ ] **Properties + Units CRUD** — pages, forms, server actions
 - [ ] **Tenants + Leases CRUD** — pages, forms, server actions with business rules
@@ -54,6 +54,34 @@
   - `.env.example` — documented required env vars
   - `.gitignore` — comprehensive gitignore
   - `.env` — local development env vars
+  - Build passes with no TypeScript errors
+- [x] **Phase 1.5: Service Layer + Validations + API Key Auth**
+  - `src/lib/validations/property.ts` — create/update property schemas
+  - `src/lib/validations/unit.ts` — create/update unit schemas
+  - `src/lib/validations/tenant.ts` — create/update tenant schemas
+  - `src/lib/validations/lease.ts` — create/update lease schemas with date validation
+  - `src/lib/validations/charge.ts` — create/update charge schemas
+  - `src/lib/validations/payment.ts` — create payment schema
+  - `src/lib/services/property.ts` — CRUD with owner-scoped queries
+  - `src/lib/services/unit.ts` — CRUD with property ownership verification
+  - `src/lib/services/tenant.ts` — CRUD scoped to owner's leases
+  - `src/lib/services/lease.ts` — CRUD with unit status management (OCCUPIED/VACANT)
+  - `src/lib/services/charge.ts` — CRUD + generateRentCharges for active leases
+  - `src/lib/services/payment.ts` — recordPayment with automatic allocation to oldest charges
+  - `src/lib/api-auth.ts` — requireApiKey() with Bearer token + env-based key:userId mapping
+  - `src/middleware.ts` — updated to bypass NextAuth for /api/v1/* routes
+  - `prisma/seed.ts` — deterministic admin user ID for dev API key mapping
+  - `.env.example` — documented API_KEYS format
+  - Build passes with no TypeScript errors
+- [x] **Phase 2: Server Actions**
+  - `src/lib/actions/property.ts` — createPropertyAction, updatePropertyAction, deletePropertyAction
+  - `src/lib/actions/unit.ts` — createUnitAction, updateUnitAction, deleteUnitAction
+  - `src/lib/actions/tenant.ts` — createTenantAction, updateTenantAction, deleteTenantAction
+  - `src/lib/actions/lease.ts` — createLeaseAction, updateLeaseAction, deleteLeaseAction
+  - `src/lib/actions/charge.ts` — createChargeAction, updateChargeAction, voidChargeAction, generateRentChargesAction
+  - `src/lib/actions/payment.ts` — recordPaymentAction
+  - Shared `ActionResult<T>` type exported from property actions
+  - Pattern: requireAuth() → Zod validate → service call → revalidatePath() → typed result
   - Build passes with no TypeScript errors
 
 ## Notes

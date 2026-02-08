@@ -53,30 +53,31 @@ export async function voidCharge(id: string, ownerId: string) {
 
 /** Generate monthly rent charges for all active leases belonging to the owner */
 export async function generateRentCharges(ownerId: string, month: Date) {
-  const year = month.getFullYear()
-  const monthIndex = month.getMonth()
+  // Use UTC to avoid timezone issues when month is parsed from "YYYY-MM" strings
+  const year = month.getUTCFullYear()
+  const monthIndex = month.getUTCMonth()
+
+  const monthStart = new Date(Date.UTC(year, monthIndex, 1))
+  const monthEnd = new Date(Date.UTC(year, monthIndex + 1, 0))
+  const nextMonthStart = new Date(Date.UTC(year, monthIndex + 1, 1))
 
   const activeLeases = await prisma.lease.findMany({
     where: {
       status: "ACTIVE",
       unit: { property: { ownerId } },
-      startDate: { lte: new Date(year, monthIndex + 1, 0) }, // before end of month
-      endDate: { gte: new Date(year, monthIndex, 1) }, // after start of month
+      startDate: { lte: monthEnd },
+      endDate: { gte: monthStart },
     },
     include: { unit: { include: { property: true } }, tenant: true },
   })
 
   const charges = []
   for (const lease of activeLeases) {
-    // Check if rent charge already exists for this month
     const existing = await prisma.charge.findFirst({
       where: {
         leaseId: lease.id,
         type: "RENT",
-        dueDate: {
-          gte: new Date(year, monthIndex, 1),
-          lt: new Date(year, monthIndex + 1, 1),
-        },
+        dueDate: { gte: monthStart, lt: nextMonthStart },
       },
     })
     if (existing) continue
@@ -87,7 +88,7 @@ export async function generateRentCharges(ownerId: string, month: Date) {
         type: "RENT",
         description: `Rent - ${lease.unit.property.name} Unit ${lease.unit.unitNumber}`,
         amount: lease.rentAmount,
-        dueDate: new Date(year, monthIndex, dueDay),
+        dueDate: new Date(Date.UTC(year, monthIndex, dueDay)),
         leaseId: lease.id,
       },
     })

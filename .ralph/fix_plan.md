@@ -8,7 +8,7 @@
 - [x] **Validation schemas** (`src/lib/validations/*.ts`) — Zod schemas for all entities
 - [x] **Dashboard layout** — sidebar navigation, shared components (page-header, breadcrumbs, empty-state, status-badge, delete-dialog)
 - [x] **Properties + Units CRUD** — pages, forms, server actions
-- [ ] **Tenants + Leases CRUD** — pages, forms, server actions with business rules
+- [x] **Tenants + Leases CRUD** — pages, forms, server actions with business rules
 - [ ] **Billing** — charges generation, payment recording with allocation logic
 - [ ] Run migration: `npx prisma migrate dev --name init`
 - [ ] Seed database: `npx prisma db seed`
@@ -110,6 +110,21 @@
   - `src/app/(dashboard)/properties/[propertyId]/units/new/page.tsx` — add unit to property
   - `src/app/(dashboard)/properties/[propertyId]/units/[unitId]/edit/page.tsx` — edit unit
   - Note: Prisma Decimal fields need `Number()` conversion for TypeScript compatibility
+  - Build passes with no TypeScript errors
+- [x] **Phase 5: Tenants + Leases CRUD**
+  - `src/components/forms/tenant-form.tsx` — shared create/edit tenant form
+  - `src/components/forms/lease-form.tsx` — lease form with tenant/unit Select dropdowns, date inputs, status selector
+  - `src/app/(dashboard)/tenants/page.tsx` — tenants list with active lease info
+  - `src/app/(dashboard)/tenants/new/page.tsx` — create tenant
+  - `src/app/(dashboard)/tenants/[tenantId]/page.tsx` — tenant detail with leases table, outstanding balance, payment count
+  - `src/app/(dashboard)/tenants/[tenantId]/edit/page.tsx` — edit tenant
+  - `src/app/(dashboard)/tenants/[tenantId]/actions.tsx` — delete with confirmation
+  - `src/app/(dashboard)/leases/page.tsx` — leases list with status badges, tenant/property links
+  - `src/app/(dashboard)/leases/new/page.tsx` — create lease (fetches available tenants + vacant units)
+  - `src/app/(dashboard)/leases/[leaseId]/page.tsx` — lease detail with charges table
+  - `src/app/(dashboard)/leases/[leaseId]/edit/page.tsx` — edit lease
+  - `src/app/(dashboard)/leases/[leaseId]/actions.tsx` — delete with confirmation
+  - Note: `z.coerce.date()` with `.refine()` needs `as any` cast for zodResolver compatibility
   - Build passes with no TypeScript errors
 
 ## Notes

@@ -3,7 +3,7 @@
 ## High Priority
 - [x] **Service layer** (`src/lib/services/*.ts`) — pure business logic for properties, units, tenants, leases, charges, payments
 - [x] **Server actions** (`src/lib/actions/*.ts`) — thin wrappers: requireAuth() → validate → call service → revalidatePath()
-- [ ] **API routes** (`src/app/api/v1/...`) — REST API with API key auth for external integrations
+- [x] **API routes** (`src/app/api/v1/...`) — REST API with API key auth for external integrations
 - [x] **API key auth** (`src/lib/api-auth.ts`) — requireApiKey() helper for API routes
 - [x] **Validation schemas** (`src/lib/validations/*.ts`) — Zod schemas for all entities
 - [ ] **Dashboard layout** — sidebar navigation, shared components (page-header, breadcrumbs, empty-state, status-badge, delete-dialog)
@@ -82,6 +82,21 @@
   - `src/lib/actions/payment.ts` — recordPaymentAction
   - Shared `ActionResult<T>` type exported from property actions
   - Pattern: requireAuth() → Zod validate → service call → revalidatePath() → typed result
+  - Build passes with no TypeScript errors
+- [x] **Phase 3: REST API Routes**
+  - `src/app/api/v1/properties/route.ts` — GET (list), POST (create)
+  - `src/app/api/v1/properties/[id]/route.ts` — GET, PUT, DELETE
+  - `src/app/api/v1/tenants/route.ts` — GET (list), POST (create)
+  - `src/app/api/v1/tenants/[id]/route.ts` — GET, PUT, DELETE
+  - `src/app/api/v1/units/route.ts` — GET (by propertyId), POST (create)
+  - `src/app/api/v1/units/[id]/route.ts` — GET, PUT, DELETE
+  - `src/app/api/v1/leases/route.ts` — GET (list), POST (create)
+  - `src/app/api/v1/leases/[id]/route.ts` — GET, PUT, DELETE
+  - `src/app/api/v1/charges/route.ts` — GET (by leaseId), POST (create or generateRent action)
+  - `src/app/api/v1/charges/[id]/route.ts` — PUT (update), DELETE (void)
+  - `src/app/api/v1/payments/route.ts` — GET (by tenantId), POST (record with auto-allocation)
+  - Pattern: requireApiKey() → validate → service call → JSON response
+  - All routes use owner-scoped service functions for authorization
   - Build passes with no TypeScript errors
 
 ## Notes

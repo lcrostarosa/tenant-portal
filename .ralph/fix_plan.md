@@ -10,8 +10,8 @@
 - [x] **Properties + Units CRUD** — pages, forms, server actions
 - [x] **Tenants + Leases CRUD** — pages, forms, server actions with business rules
 - [x] **Billing** — charges generation, payment recording with allocation logic
-- [ ] Run migration: `npx prisma migrate dev --name init`
-- [ ] Seed database: `npx prisma db seed`
+- [x] Run migration: `npx prisma migrate dev --name init`
+- [x] Seed database: `npx prisma db seed`
 - [ ] Test auth: login with admin@example.com / admin123, verify redirect to dashboard
 - [ ] Test properties: create property, add units, edit, delete
 - [ ] Test tenants: create tenant, verify list
@@ -133,6 +133,18 @@
   - `src/components/forms/payment-form.tsx` — payment form with tenant select, amount, method, date, reference, notes
   - Uses existing `generateRentChargesAction` and `recordPaymentAction` server actions
   - Payment auto-allocation to oldest outstanding charges handled by service layer
+  - Build passes with no TypeScript errors
+
+- [x] **Phase 7: Database Setup — Migration + Seed**
+  - Created PostgreSQL database `property_manager` with user `property_manager` in Docker (pgvector/pgvector:pg16)
+  - Granted CREATEDB permission for Prisma shadow database
+  - `prisma/migrations/20260208225521_init/migration.sql` — initial migration with all tables
+  - Fixed `PrismaPg` adapter usage: requires `pg.Pool` instance, not connection string
+  - `src/lib/prisma.ts` — updated to use `new pg.Pool({ connectionString })` → `new PrismaPg(pool)`
+  - `prisma/seed.ts` — same fix, plus imports `pg`
+  - `prisma.config.ts` — added `seed: "npx tsx prisma/seed.ts"` config for Prisma 7
+  - Installed `@types/pg` dev dependency
+  - Admin user seeded: admin@example.com / admin123 (id: seed-admin-user-001)
   - Build passes with no TypeScript errors
 
 ## Notes

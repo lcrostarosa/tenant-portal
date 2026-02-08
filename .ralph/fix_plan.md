@@ -9,7 +9,7 @@
 - [x] **Dashboard layout** — sidebar navigation, shared components (page-header, breadcrumbs, empty-state, status-badge, delete-dialog)
 - [x] **Properties + Units CRUD** — pages, forms, server actions
 - [x] **Tenants + Leases CRUD** — pages, forms, server actions with business rules
-- [ ] **Billing** — charges generation, payment recording with allocation logic
+- [x] **Billing** — charges generation, payment recording with allocation logic
 - [ ] Run migration: `npx prisma migrate dev --name init`
 - [ ] Seed database: `npx prisma db seed`
 - [ ] Test auth: login with admin@example.com / admin123, verify redirect to dashboard
@@ -125,6 +125,14 @@
   - `src/app/(dashboard)/leases/[leaseId]/edit/page.tsx` — edit lease
   - `src/app/(dashboard)/leases/[leaseId]/actions.tsx` — delete with confirmation
   - Note: `z.coerce.date()` with `.refine()` needs `as any` cast for zodResolver compatibility
+  - Build passes with no TypeScript errors
+- [x] **Phase 6: Billing — Charges + Payments**
+  - `src/app/(dashboard)/billing/page.tsx` — overview with outstanding balance, charge list, recent payments, quick action cards
+  - `src/app/(dashboard)/billing/charges/generate/page.tsx` — month picker to generate rent charges for all active leases
+  - `src/app/(dashboard)/billing/payments/new/page.tsx` — record payment (server component fetches tenants with active leases)
+  - `src/components/forms/payment-form.tsx` — payment form with tenant select, amount, method, date, reference, notes
+  - Uses existing `generateRentChargesAction` and `recordPaymentAction` server actions
+  - Payment auto-allocation to oldest outstanding charges handled by service layer
   - Build passes with no TypeScript errors
 
 ## Notes

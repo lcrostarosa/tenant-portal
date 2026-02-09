@@ -11,12 +11,13 @@ export const authConfig = {
       const isLoggedIn = !!auth?.user
       const { pathname } = request.nextUrl
       const isOnLogin = pathname.startsWith("/login")
+      const isOnDocs = pathname.startsWith("/docs")
       const isApiV1 = pathname.startsWith("/api/v1")
       const isWebhook = pathname.startsWith("/api/webhooks")
       const isCron = pathname.startsWith("/api/cron")
 
       if (isApiV1 || isWebhook || isCron) return true
-      if (isOnLogin) return true
+      if (isOnLogin || isOnDocs) return true
 
       if (!isLoggedIn) return false
 

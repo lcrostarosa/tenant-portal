@@ -16,6 +16,6 @@ export const config = {
      * - /_next/* (Next.js internals)
      * - /favicon.ico, static assets
      */
-    "/((?!api/auth|api/v1|api/webhooks|api/cron|_next|favicon\\.ico|icons).*)",
+    "/((?!api/auth|api/v1|api/webhooks|api/cron|docs|_next|favicon\\.ico|icons).*)",
   ],
 }

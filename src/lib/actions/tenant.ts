@@ -16,7 +16,7 @@ export async function createTenantAction(formData: FormData): Promise<ActionResu
 
   try {
     const tenant = await createTenant(parsed.data)
-    revalidatePath("/tenants")
+    revalidatePath("/dashboard/tenants")
     return { success: true, data: { id: tenant.id } }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to create tenant" }
@@ -33,8 +33,8 @@ export async function updateTenantAction(id: string, formData: FormData): Promis
 
   try {
     await updateTenant(id, parsed.data)
-    revalidatePath("/tenants")
-    revalidatePath(`/tenants/${id}`)
+    revalidatePath("/dashboard/tenants")
+    revalidatePath(`/dashboard/tenants/${id}`)
     return { success: true, data: undefined }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to update tenant" }
@@ -46,7 +46,7 @@ export async function deleteTenantAction(id: string): Promise<ActionResult> {
 
   try {
     await deleteTenant(id)
-    revalidatePath("/tenants")
+    revalidatePath("/dashboard/tenants")
     return { success: true, data: undefined }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to delete tenant" }

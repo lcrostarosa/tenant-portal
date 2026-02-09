@@ -68,11 +68,11 @@ export function TenantForm({ tenant }: TenantFormProps) {
 
     toast({ title: tenant ? "Tenant updated" : "Tenant created" })
     if (tenant) {
-      router.push(`/tenants/${tenant.id}`)
+      router.push(`/dashboard/tenants/${tenant.id}`)
     } else if (result.data && "id" in result.data) {
-      router.push(`/tenants/${result.data.id}`)
+      router.push(`/dashboard/tenants/${result.data.id}`)
     } else {
-      router.push("/tenants")
+      router.push("/dashboard/tenants")
     }
     router.refresh()
   }

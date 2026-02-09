@@ -22,7 +22,7 @@ export async function createUnitAction(formData: FormData): Promise<ActionResult
 
   try {
     const unit = await createUnit(parsed.data, session.user.id)
-    revalidatePath(`/properties/${parsed.data.propertyId}`)
+    revalidatePath(`/dashboard/properties/${parsed.data.propertyId}`)
     return { success: true, data: { id: unit.id } }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to create unit" }
@@ -45,7 +45,7 @@ export async function updateUnitAction(id: string, propertyId: string, formData:
 
   try {
     await updateUnit(id, parsed.data, session.user.id)
-    revalidatePath(`/properties/${propertyId}`)
+    revalidatePath(`/dashboard/properties/${propertyId}`)
     return { success: true, data: undefined }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to update unit" }
@@ -57,7 +57,7 @@ export async function deleteUnitAction(id: string, propertyId: string): Promise<
 
   try {
     await deleteUnit(id, session.user.id)
-    revalidatePath(`/properties/${propertyId}`)
+    revalidatePath(`/dashboard/properties/${propertyId}`)
     return { success: true, data: undefined }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to delete unit" }

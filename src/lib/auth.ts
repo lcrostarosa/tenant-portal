@@ -3,10 +3,11 @@ import Credentials from "next-auth/providers/credentials"
 import { compare } from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
+import { cache } from "react"
 import type { Role } from "@/generated/prisma"
 import { authConfig } from "@/lib/auth.config"
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth: uncachedAuth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
     Credentials({
@@ -58,8 +59,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 })
 
+// Deduplicate auth() calls within the same React Server Component render pass
+export const auth = cache(uncachedAuth)
+
 export async function requireAuth() {
   const session = await auth()
   if (!session?.user?.id) redirect("/login")
   return session
+}
+
+export async function requireLandlordAuth() {
+  const session = await requireAuth()
+  if (session.user.role !== "LANDLORD") redirect("/tenant")
+  return session
+}
+
+export async function requireTenantAuth() {
+  const session = await requireAuth()
+  if (session.user.role !== "TENANT") redirect("/dashboard")
+
+  const tenant = await prisma.tenant.findFirst({
+    where: { userId: session.user.id },
+  })
+  if (!tenant) redirect("/login")
+
+  return { session, tenantId: tenant.id }
 }

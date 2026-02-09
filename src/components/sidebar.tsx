@@ -12,6 +12,10 @@ import {
   DollarSign,
   LogOut,
   Menu,
+  Receipt,
+  Car,
+  Wrench,
+  MessageSquare,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -22,13 +26,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: Home },
-  { href: "/properties", label: "Properties", icon: Building2 },
-  { href: "/tenants", label: "Tenants", icon: Users },
-  { href: "/leases", label: "Leases", icon: FileText },
-  { href: "/billing", label: "Billing", icon: DollarSign },
+  { href: "/dashboard", label: "Dashboard", icon: Home },
+  { href: "/dashboard/properties", label: "Properties", icon: Building2 },
+  { href: "/dashboard/tenants", label: "Tenants", icon: Users },
+  { href: "/dashboard/leases", label: "Leases", icon: FileText },
+  { href: "/dashboard/billing", label: "Billing", icon: DollarSign },
+  { href: "/dashboard/expenses", label: "Expenses", icon: Receipt },
+  { href: "/dashboard/mileage", label: "Mileage", icon: Car },
+  { href: "/dashboard/maintenance", label: "Maintenance", icon: Wrench },
+  { href: "/dashboard/messages", label: "Messages", icon: MessageSquare },
 ]
 
 function NavContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -43,8 +52,8 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
       <nav className="flex-1 space-y-1 px-2 py-4">
         {navItems.map((item) => {
           const isActive =
-            item.href === "/"
-              ? pathname === "/"
+            item.href === "/dashboard"
+              ? pathname === "/dashboard"
               : pathname.startsWith(item.href)
           return (
             <Link
@@ -64,7 +73,8 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
           )
         })}
       </nav>
-      <div className="border-t px-2 py-4">
+      <div className="border-t px-2 py-4 space-y-1">
+        <ThemeToggle />
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
           className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"

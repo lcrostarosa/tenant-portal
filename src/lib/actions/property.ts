@@ -17,7 +17,7 @@ export async function createPropertyAction(formData: FormData): Promise<ActionRe
 
   try {
     const property = await createProperty(parsed.data, session.user.id)
-    revalidatePath("/properties")
+    revalidatePath("/dashboard/properties")
     return { success: true, data: { id: property.id } }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to create property" }
@@ -34,8 +34,8 @@ export async function updatePropertyAction(id: string, formData: FormData): Prom
 
   try {
     await updateProperty(id, parsed.data, session.user.id)
-    revalidatePath("/properties")
-    revalidatePath(`/properties/${id}`)
+    revalidatePath("/dashboard/properties")
+    revalidatePath(`/dashboard/properties/${id}`)
     return { success: true, data: undefined }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to update property" }
@@ -47,7 +47,7 @@ export async function deletePropertyAction(id: string): Promise<ActionResult> {
 
   try {
     await deleteProperty(id, session.user.id)
-    revalidatePath("/properties")
+    revalidatePath("/dashboard/properties")
     return { success: true, data: undefined }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to delete property" }

@@ -30,7 +30,7 @@ export async function uploadLeaseDocumentAction(
 
   try {
     const document = await uploadDocument(file, "lease", leaseId, "lease-document")
-    revalidatePath(`/leases/${leaseId}`)
+    revalidatePath(`/dashboard/leases/${leaseId}`)
     return { success: true, data: { id: document.id } }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Upload failed" }
@@ -56,7 +56,7 @@ export async function deleteLeaseDocumentAction(
 
   try {
     await deleteDocument(documentId)
-    revalidatePath(`/leases/${leaseId}`)
+    revalidatePath(`/dashboard/leases/${leaseId}`)
     return { success: true, data: undefined }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Delete failed" }

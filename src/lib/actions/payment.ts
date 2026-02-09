@@ -19,9 +19,9 @@ export async function recordPaymentAction(formData: FormData): Promise<ActionRes
 
   try {
     const payment = await recordPayment(parsed.data, session.user.id)
-    revalidatePath(`/tenants/${parsed.data.tenantId}`)
-    revalidatePath("/billing")
-    revalidatePath("/payments")
+    revalidatePath(`/dashboard/tenants/${parsed.data.tenantId}`)
+    revalidatePath("/dashboard/billing")
+    revalidatePath("/dashboard/billing")
     return { success: true, data: { id: payment.id } }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to record payment" }

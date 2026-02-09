@@ -67,7 +67,7 @@ export function PaymentForm({ tenants }: PaymentFormProps) {
     }
 
     toast({ title: "Payment recorded", description: "Payment has been allocated to outstanding charges." })
-    router.push("/billing")
+    router.push("/dashboard/billing")
     router.refresh()
   }
 

@@ -35,6 +35,13 @@ export function getTenantFullName(tenant: {
   return `${tenant.firstName} ${tenant.lastName}`
 }
 
+export function normalizePhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "")
+  if (digits.length === 10) return `+1${digits}`
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`
+  return `+${digits}`
+}
+
 export function getOutstandingAmount(charges: { amount: string | number; paidAmount: string | number }[]): number {
   return charges.reduce((sum, charge) => {
     const amount = typeof charge.amount === "string" ? parseFloat(charge.amount) : charge.amount

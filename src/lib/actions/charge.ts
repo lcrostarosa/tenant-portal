@@ -19,8 +19,8 @@ export async function createChargeAction(formData: FormData): Promise<ActionResu
 
   try {
     const charge = await createCharge(parsed.data, session.user.id)
-    revalidatePath(`/leases/${parsed.data.leaseId}`)
-    revalidatePath("/billing")
+    revalidatePath(`/dashboard/leases/${parsed.data.leaseId}`)
+    revalidatePath("/dashboard/billing")
     return { success: true, data: { id: charge.id } }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to create charge" }
@@ -40,8 +40,8 @@ export async function updateChargeAction(id: string, leaseId: string, formData: 
 
   try {
     await updateCharge(id, parsed.data, session.user.id)
-    revalidatePath(`/leases/${leaseId}`)
-    revalidatePath("/billing")
+    revalidatePath(`/dashboard/leases/${leaseId}`)
+    revalidatePath("/dashboard/billing")
     return { success: true, data: undefined }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to update charge" }
@@ -53,8 +53,8 @@ export async function voidChargeAction(id: string, leaseId: string): Promise<Act
 
   try {
     await voidCharge(id, session.user.id)
-    revalidatePath(`/leases/${leaseId}`)
-    revalidatePath("/billing")
+    revalidatePath(`/dashboard/leases/${leaseId}`)
+    revalidatePath("/dashboard/billing")
     return { success: true, data: undefined }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to void charge" }
@@ -66,8 +66,8 @@ export async function generateRentChargesAction(month: string): Promise<ActionRe
 
   try {
     const charges = await generateRentCharges(session.user.id, new Date(month))
-    revalidatePath("/billing")
-    revalidatePath("/leases")
+    revalidatePath("/dashboard/billing")
+    revalidatePath("/dashboard/leases")
     return { success: true, data: { count: charges.length } }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to generate rent charges" }

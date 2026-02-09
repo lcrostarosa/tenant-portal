@@ -100,11 +100,11 @@ export function LeaseForm({ tenants, units, lease }: LeaseFormProps) {
 
     toast({ title: lease ? "Lease updated" : "Lease created" })
     if (lease) {
-      router.push(`/leases/${lease.id}`)
+      router.push(`/dashboard/leases/${lease.id}`)
     } else if (result.data && "id" in result.data) {
-      router.push(`/leases/${result.data.id}`)
+      router.push(`/dashboard/leases/${result.data.id}`)
     } else {
-      router.push("/leases")
+      router.push("/dashboard/leases")
     }
     router.refresh()
   }

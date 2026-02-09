@@ -76,7 +76,7 @@ export function UnitForm({ propertyId, unit }: UnitFormProps) {
     }
 
     toast({ title: unit ? "Unit updated" : "Unit created" })
-    router.push(`/properties/${propertyId}`)
+    router.push(`/dashboard/properties/${propertyId}`)
     router.refresh()
   }
 

@@ -54,6 +54,59 @@ enum PaymentSource {
   WEBHOOK
 }
 
+enum MaintenanceStatus {
+  OPEN
+  IN_PROGRESS
+  SCHEDULED
+  COMPLETED
+  CLOSED
+}
+
+enum MaintenancePriority {
+  LOW
+  MEDIUM
+  HIGH
+  EMERGENCY
+}
+
+enum MaintenanceCategory {
+  PLUMBING
+  ELECTRICAL
+  HVAC
+  APPLIANCE
+  STRUCTURAL
+  PEST
+  OTHER
+}
+
+enum MaintenanceFrequency {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  SEMIANNUAL
+  ANNUAL
+  CUSTOM
+}
+
+enum MessageDirection {
+  OUTBOUND
+  INBOUND
+}
+
+enum MessageStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  IN_APP_ONLY
+}
+
+enum DeliveryChannel {
+  SMS
+  IN_APP
+}
+
 enum ExpenseCategory {
   REPAIRS
   MORTGAGE
@@ -77,9 +130,11 @@ model User {
   updatedAt    DateTime   @updatedAt
   properties   Property[]
   expenses     Expense[]
-  mileageTrips MileageTrip[]
-  accounts     Account[]
-  sessions     Session[]
+  mileageTrips            MileageTrip[]
+  accounts                Account[]
+  sessions                Session[]
+  preventiveMaintenances  PreventiveMaintenance[]
+  conversations           Conversation[]
 }
 
 model Account {
@@ -120,9 +175,12 @@ model Property {
   owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  units     Unit[]
-  expenses  Expense[]
-  mileageTrips MileageTrip[]
+  units                  Unit[]
+  expenses               Expense[]
+  mileageTrips           MileageTrip[]
+  preventiveMaintenances PreventiveMaintenance[]
+
+  @@index([ownerId])
 }
 
 model Unit {
@@ -138,10 +196,13 @@ model Unit {
   property   Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
-  leases     Lease[]
-  expenses   Expense[]
+  leases                 Lease[]
+  expenses               Expense[]
+  maintenanceRequests    MaintenanceRequest[]
+  preventiveMaintenances PreventiveMaintenance[]
 
   @@unique([propertyId, unitNumber])
+  @@index([propertyId])
 }
 
 model Tenant {
@@ -154,8 +215,10 @@ model Tenant {
   userId    String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  leases    Lease[]
-  payments  Payment[]
+  leases              Lease[]
+  payments            Payment[]
+  maintenanceRequests MaintenanceRequest[]
+  conversations       Conversation[]
 }
 
 model Lease {
@@ -177,6 +240,8 @@ model Lease {
   charges         Charge[]
 
   @@index([status])
+  @@index([unitId])
+  @@index([tenantId])
 }
 
 model Charge {
@@ -194,6 +259,7 @@ model Charge {
   allocations PaymentAllocation[]
 
   @@index([status, dueDate])
+  @@index([leaseId, status])
 }
 
 model Payment {
@@ -240,6 +306,8 @@ model Expense {
   owner               User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
+
+  @@index([ownerId])
 }
 
 model MileageTrip {
@@ -254,6 +322,8 @@ model MileageTrip {
   owner      User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
+
+  @@index([ownerId])
 }
 
 model Document {
@@ -268,4 +338,89 @@ model Document {
   createdAt   DateTime @default(now())
 
   @@index([entityType, entityId])
+}
+
+model MaintenanceRequest {
+  id             String              @id @default(cuid())
+  title          String
+  description    String
+  status         MaintenanceStatus   @default(OPEN)
+  priority       MaintenancePriority @default(MEDIUM)
+  category       MaintenanceCategory @default(OTHER)
+  scheduledDate  DateTime?
+  completedDate  DateTime?
+  unitId         String
+  unit           Unit                @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  tenantId       String
+  tenant         Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  comments       MaintenanceComment[]
+
+  @@index([status])
+  @@index([unitId])
+}
+
+model MaintenanceComment {
+  id                   String             @id @default(cuid())
+  text                 String
+  authorId             String
+  authorName           String
+  authorRole           String
+  maintenanceRequestId String
+  maintenanceRequest   MaintenanceRequest @relation(fields: [maintenanceRequestId], references: [id], onDelete: Cascade)
+  createdAt            DateTime           @default(now())
+}
+
+model PreventiveMaintenance {
+  id            String               @id @default(cuid())
+  title         String
+  description   String?
+  frequency     MaintenanceFrequency
+  customDays    Int?
+  nextDueDate   DateTime
+  lastCompleted DateTime?
+  notifyTenants Boolean              @default(false)
+  isActive      Boolean              @default(true)
+  propertyId    String?
+  property      Property?            @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  unitId        String?
+  unit          Unit?                @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  ownerId       String
+  owner         User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+}
+
+model Conversation {
+  id            String    @id @default(cuid())
+  tenantId      String
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  ownerId       String
+  owner         User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  subject       String?
+  lastMessageAt DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  messages      Message[]
+
+  @@unique([tenantId, ownerId])
+  @@index([ownerId, lastMessageAt])
+}
+
+model Message {
+  id             String           @id @default(cuid())
+  conversationId String
+  conversation   Conversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  direction      MessageDirection
+  channel        DeliveryChannel  @default(IN_APP)
+  status         MessageStatus    @default(PENDING)
+  body           String
+  twilioSid      String?
+  errorMessage   String?
+  readAt         DateTime?
+  createdAt      DateTime         @default(now())
+
+  @@index([conversationId, createdAt])
+  @@index([conversationId, direction, readAt])
 }

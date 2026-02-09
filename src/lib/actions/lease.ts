@@ -21,8 +21,8 @@ export async function createLeaseAction(formData: FormData): Promise<ActionResul
 
   try {
     const lease = await createLease(parsed.data, session.user.id)
-    revalidatePath("/leases")
-    revalidatePath(`/properties/${raw.propertyId}`)
+    revalidatePath("/dashboard/leases")
+    revalidatePath(`/dashboard/properties/${raw.propertyId}`)
     return { success: true, data: { id: lease.id } }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to create lease" }
@@ -44,8 +44,8 @@ export async function updateLeaseAction(id: string, formData: FormData): Promise
 
   try {
     await updateLease(id, parsed.data, session.user.id)
-    revalidatePath("/leases")
-    revalidatePath(`/leases/${id}`)
+    revalidatePath("/dashboard/leases")
+    revalidatePath(`/dashboard/leases/${id}`)
     return { success: true, data: undefined }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to update lease" }
@@ -57,8 +57,8 @@ export async function deleteLeaseAction(id: string): Promise<ActionResult> {
 
   try {
     await deleteLease(id, session.user.id)
-    revalidatePath("/leases")
-    revalidatePath("/properties")
+    revalidatePath("/dashboard/leases")
+    revalidatePath("/dashboard/properties")
     return { success: true, data: undefined }
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed to delete lease" }

@@ -70,11 +70,11 @@ export function PropertyForm({ property }: PropertyFormProps) {
 
     toast({ title: property ? "Property updated" : "Property created" })
     if (property) {
-      router.push(`/properties/${property.id}`)
+      router.push(`/dashboard/properties/${property.id}`)
     } else if (result.data && "id" in result.data) {
-      router.push(`/properties/${result.data.id}`)
+      router.push(`/dashboard/properties/${result.data.id}`)
     } else {
-      router.push("/properties")
+      router.push("/dashboard/properties")
     }
     router.refresh()
   }

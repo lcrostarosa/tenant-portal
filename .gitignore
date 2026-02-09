@@ -43,3 +43,13 @@ src/generated/
 # uploads
 data/uploads/*
 !data/uploads/.gitkeep
+
+# prd (separate repo)
+prd/
+
+# ralph runtime files
+.ralph/logs/
+.ralph/live.log
+.ralph/status.json
+.ralph/progress.json
+.ralph/.*

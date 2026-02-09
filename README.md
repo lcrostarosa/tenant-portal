@@ -1,6 +1,6 @@
 # Tenant Portal
 
-A full-featured property management application built with Next.js. I built this because most property management tools on the market didn't meet my needs — they lacked a proper REST API and made it impossible to automate the repetitive tasks that eat up my time as a landlord. The vendor I was working with couldn't support API access or the customizations I needed, so I built my own.
+A full-featured property management application built with Next.js. 
 
 ## Why This Exists
 

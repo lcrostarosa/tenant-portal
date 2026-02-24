@@ -1,0 +1,687 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Tenant Portal API",
+    "description": "REST API for managing properties, units, tenants, leases, charges, and payments. All endpoints require an API key passed via the `x-api-key` header.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Current server"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    },
+    "schemas": {
+      "Property": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "cuid" },
+          "name": { "type": "string" },
+          "address": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string", "minLength": 2, "maxLength": 2 },
+          "zipCode": { "type": "string" },
+          "notes": { "type": "string", "nullable": true },
+          "userId": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateProperty": {
+        "type": "object",
+        "required": ["name", "address", "city", "state", "zipCode"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "description": "Property name" },
+          "address": { "type": "string", "minLength": 1, "description": "Street address" },
+          "city": { "type": "string", "minLength": 1 },
+          "state": { "type": "string", "minLength": 2, "maxLength": 2, "description": "2-letter state code" },
+          "zipCode": { "type": "string", "minLength": 5 },
+          "notes": { "type": "string", "description": "Optional notes" }
+        }
+      },
+      "UpdateProperty": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "address": { "type": "string", "minLength": 1 },
+          "city": { "type": "string", "minLength": 1 },
+          "state": { "type": "string", "minLength": 2, "maxLength": 2 },
+          "zipCode": { "type": "string", "minLength": 5 },
+          "notes": { "type": "string" }
+        }
+      },
+      "Unit": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "cuid" },
+          "unitNumber": { "type": "string" },
+          "bedrooms": { "type": "integer" },
+          "bathrooms": { "type": "number" },
+          "sqft": { "type": "integer", "nullable": true },
+          "marketRent": { "type": "number" },
+          "status": { "type": "string", "enum": ["VACANT", "OCCUPIED", "MAINTENANCE"] },
+          "notes": { "type": "string", "nullable": true },
+          "propertyId": { "type": "string" },
+          "userId": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateUnit": {
+        "type": "object",
+        "required": ["unitNumber", "bedrooms", "bathrooms", "marketRent", "propertyId"],
+        "properties": {
+          "unitNumber": { "type": "string", "minLength": 1 },
+          "bedrooms": { "type": "integer", "minimum": 0 },
+          "bathrooms": { "type": "number", "minimum": 0 },
+          "sqft": { "type": "integer", "minimum": 1, "description": "Square footage (optional)" },
+          "marketRent": { "type": "number", "minimum": 0, "exclusiveMinimum": true },
+          "status": { "type": "string", "enum": ["VACANT", "OCCUPIED", "MAINTENANCE"], "default": "VACANT" },
+          "notes": { "type": "string" },
+          "propertyId": { "type": "string", "minLength": 1 }
+        }
+      },
+      "UpdateUnit": {
+        "type": "object",
+        "properties": {
+          "unitNumber": { "type": "string", "minLength": 1 },
+          "bedrooms": { "type": "integer", "minimum": 0 },
+          "bathrooms": { "type": "number", "minimum": 0 },
+          "sqft": { "type": "integer", "minimum": 1 },
+          "marketRent": { "type": "number", "minimum": 0, "exclusiveMinimum": true },
+          "status": { "type": "string", "enum": ["VACANT", "OCCUPIED", "MAINTENANCE"] },
+          "notes": { "type": "string" }
+        }
+      },
+      "Tenant": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "cuid" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "email": { "type": "string", "nullable": true },
+          "phone": { "type": "string", "nullable": true },
+          "notes": { "type": "string", "nullable": true },
+          "userId": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateTenant": {
+        "type": "object",
+        "required": ["firstName", "lastName"],
+        "properties": {
+          "firstName": { "type": "string", "minLength": 1 },
+          "lastName": { "type": "string", "minLength": 1 },
+          "email": { "type": "string", "format": "email", "description": "Optional email" },
+          "phone": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      },
+      "UpdateTenant": {
+        "type": "object",
+        "properties": {
+          "firstName": { "type": "string", "minLength": 1 },
+          "lastName": { "type": "string", "minLength": 1 },
+          "email": { "type": "string", "format": "email" },
+          "phone": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      },
+      "Lease": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "cuid" },
+          "startDate": { "type": "string", "format": "date-time" },
+          "endDate": { "type": "string", "format": "date-time" },
+          "rentAmount": { "type": "number" },
+          "securityDeposit": { "type": "number", "nullable": true },
+          "rentDueDay": { "type": "integer" },
+          "status": { "type": "string", "enum": ["DRAFT", "ACTIVE", "EXPIRED", "TERMINATED"] },
+          "documentPath": { "type": "string", "nullable": true },
+          "notes": { "type": "string", "nullable": true },
+          "tenantId": { "type": "string" },
+          "unitId": { "type": "string" },
+          "userId": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateLease": {
+        "type": "object",
+        "required": ["startDate", "endDate", "rentAmount", "tenantId", "unitId"],
+        "properties": {
+          "startDate": { "type": "string", "format": "date", "description": "Lease start date" },
+          "endDate": { "type": "string", "format": "date", "description": "Must be after startDate" },
+          "rentAmount": { "type": "number", "minimum": 0, "exclusiveMinimum": true },
+          "securityDeposit": { "type": "number", "minimum": 0 },
+          "rentDueDay": { "type": "integer", "minimum": 1, "maximum": 28, "default": 1, "description": "Day of month rent is due (1-28)" },
+          "status": { "type": "string", "enum": ["DRAFT", "ACTIVE", "EXPIRED", "TERMINATED"], "default": "DRAFT" },
+          "documentPath": { "type": "string" },
+          "notes": { "type": "string" },
+          "tenantId": { "type": "string", "minLength": 1 },
+          "unitId": { "type": "string", "minLength": 1 }
+        }
+      },
+      "UpdateLease": {
+        "type": "object",
+        "properties": {
+          "startDate": { "type": "string", "format": "date" },
+          "endDate": { "type": "string", "format": "date" },
+          "rentAmount": { "type": "number", "minimum": 0, "exclusiveMinimum": true },
+          "securityDeposit": { "type": "number", "minimum": 0 },
+          "rentDueDay": { "type": "integer", "minimum": 1, "maximum": 28 },
+          "status": { "type": "string", "enum": ["DRAFT", "ACTIVE", "EXPIRED", "TERMINATED"] },
+          "documentPath": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      },
+      "Charge": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "cuid" },
+          "type": { "type": "string", "enum": ["RENT", "LATE_FEE", "UTILITY", "REPAIR", "OTHER"] },
+          "description": { "type": "string" },
+          "amount": { "type": "number" },
+          "dueDate": { "type": "string", "format": "date-time" },
+          "status": { "type": "string", "enum": ["DUE", "PARTIAL", "PAID", "VOID"] },
+          "leaseId": { "type": "string" },
+          "userId": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateCharge": {
+        "type": "object",
+        "required": ["type", "description", "amount", "dueDate", "leaseId"],
+        "properties": {
+          "type": { "type": "string", "enum": ["RENT", "LATE_FEE", "UTILITY", "REPAIR", "OTHER"] },
+          "description": { "type": "string", "minLength": 1 },
+          "amount": { "type": "number", "minimum": 0, "exclusiveMinimum": true },
+          "dueDate": { "type": "string", "format": "date" },
+          "leaseId": { "type": "string", "minLength": 1 }
+        }
+      },
+      "UpdateCharge": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["RENT", "LATE_FEE", "UTILITY", "REPAIR", "OTHER"] },
+          "description": { "type": "string", "minLength": 1 },
+          "amount": { "type": "number", "minimum": 0, "exclusiveMinimum": true },
+          "dueDate": { "type": "string", "format": "date" },
+          "status": { "type": "string", "enum": ["DUE", "PARTIAL", "PAID", "VOID"] }
+        }
+      },
+      "GenerateRent": {
+        "type": "object",
+        "required": ["action", "month"],
+        "properties": {
+          "action": { "type": "string", "enum": ["generateRent"], "description": "Must be 'generateRent'" },
+          "month": { "type": "string", "format": "date", "description": "Month to generate rent charges for (e.g. '2025-02-01')" }
+        }
+      },
+      "GenerateRentResponse": {
+        "type": "object",
+        "properties": {
+          "generated": { "type": "integer", "description": "Number of charges generated" },
+          "charges": { "type": "array", "items": { "$ref": "#/components/schemas/Charge" } }
+        }
+      },
+      "Payment": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "cuid" },
+          "amount": { "type": "number" },
+          "method": { "type": "string", "enum": ["CASH", "CHECK", "ZELLE", "VENMO", "BANK_TRANSFER", "OTHER"] },
+          "receivedDate": { "type": "string", "format": "date-time" },
+          "reference": { "type": "string", "nullable": true },
+          "notes": { "type": "string", "nullable": true },
+          "source": { "type": "string", "enum": ["MANUAL", "WEBHOOK"] },
+          "tenantId": { "type": "string" },
+          "userId": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreatePayment": {
+        "type": "object",
+        "required": ["amount", "method", "receivedDate", "tenantId"],
+        "properties": {
+          "amount": { "type": "number", "minimum": 0, "exclusiveMinimum": true },
+          "method": { "type": "string", "enum": ["CASH", "CHECK", "ZELLE", "VENMO", "BANK_TRANSFER", "OTHER"] },
+          "receivedDate": { "type": "string", "format": "date", "description": "Date payment was received" },
+          "reference": { "type": "string", "description": "Check number, transaction ID, etc." },
+          "notes": { "type": "string" },
+          "source": { "type": "string", "enum": ["MANUAL", "WEBHOOK"], "default": "MANUAL" },
+          "tenantId": { "type": "string", "minLength": 1 }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/properties": {
+      "get": {
+        "tags": ["Properties"],
+        "summary": "List all properties",
+        "description": "Returns all properties owned by the authenticated user.",
+        "responses": {
+          "200": {
+            "description": "List of properties",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Property" }
+                }
+              }
+            }
+          },
+          "401": { "description": "Missing or invalid API key", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      },
+      "post": {
+        "tags": ["Properties"],
+        "summary": "Create a property",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateProperty" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created property",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Property" } } }
+          },
+          "400": { "description": "Validation error", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      }
+    },
+    "/properties/{id}": {
+      "get": {
+        "tags": ["Properties"],
+        "summary": "Get a property by ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Property ID" }
+        ],
+        "responses": {
+          "200": { "description": "Property details", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Property" } } } },
+          "404": { "description": "Property not found" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      },
+      "put": {
+        "tags": ["Properties"],
+        "summary": "Update a property",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Property ID" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateProperty" } } }
+        },
+        "responses": {
+          "200": { "description": "Updated property", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Property" } } } },
+          "400": { "description": "Validation error" },
+          "404": { "description": "Property not found" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      },
+      "delete": {
+        "tags": ["Properties"],
+        "summary": "Delete a property",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Property ID" }
+        ],
+        "responses": {
+          "200": { "description": "Deleted property", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Property" } } } },
+          "404": { "description": "Property not found" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      }
+    },
+    "/units": {
+      "get": {
+        "tags": ["Units"],
+        "summary": "List units by property",
+        "description": "Returns all units for a given property. The `propertyId` query parameter is required.",
+        "parameters": [
+          { "name": "propertyId", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Filter units by property ID" }
+        ],
+        "responses": {
+          "200": { "description": "List of units", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Unit" } } } } },
+          "400": { "description": "Missing propertyId parameter" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      },
+      "post": {
+        "tags": ["Units"],
+        "summary": "Create a unit",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateUnit" } } }
+        },
+        "responses": {
+          "201": { "description": "Created unit", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Unit" } } } },
+          "400": { "description": "Validation error" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      }
+    },
+    "/units/{id}": {
+      "get": {
+        "tags": ["Units"],
+        "summary": "Get a unit by ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Unit ID" }
+        ],
+        "responses": {
+          "200": { "description": "Unit details", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Unit" } } } },
+          "404": { "description": "Unit not found" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      },
+      "put": {
+        "tags": ["Units"],
+        "summary": "Update a unit",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Unit ID" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateUnit" } } }
+        },
+        "responses": {
+          "200": { "description": "Updated unit", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Unit" } } } },
+          "400": { "description": "Validation error" },
+          "404": { "description": "Unit not found" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      },
+      "delete": {
+        "tags": ["Units"],
+        "summary": "Delete a unit",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Unit ID" }
+        ],
+        "responses": {
+          "200": { "description": "Deleted unit", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Unit" } } } },
+          "404": { "description": "Unit not found" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      }
+    },
+    "/tenants": {
+      "get": {
+        "tags": ["Tenants"],
+        "summary": "List all tenants",
+        "description": "Returns all tenants belonging to the authenticated user.",
+        "responses": {
+          "200": { "description": "List of tenants", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Tenant" } } } } },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      },
+      "post": {
+        "tags": ["Tenants"],
+        "summary": "Create a tenant",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateTenant" } } }
+        },
+        "responses": {
+          "201": { "description": "Created tenant", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Tenant" } } } },
+          "400": { "description": "Validation error" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      }
+    },
+    "/tenants/{id}": {
+      "get": {
+        "tags": ["Tenants"],
+        "summary": "Get a tenant by ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Tenant ID" }
+        ],
+        "responses": {
+          "200": { "description": "Tenant details", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Tenant" } } } },
+          "404": { "description": "Tenant not found" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      },
+      "put": {
+        "tags": ["Tenants"],
+        "summary": "Update a tenant",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Tenant ID" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateTenant" } } }
+        },
+        "responses": {
+          "200": { "description": "Updated tenant", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Tenant" } } } },
+          "400": { "description": "Validation error" },
+          "404": { "description": "Tenant not found" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      },
+      "delete": {
+        "tags": ["Tenants"],
+        "summary": "Delete a tenant",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Tenant ID" }
+        ],
+        "responses": {
+          "200": { "description": "Deleted tenant", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Tenant" } } } },
+          "404": { "description": "Tenant not found" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      }
+    },
+    "/leases": {
+      "get": {
+        "tags": ["Leases"],
+        "summary": "List all leases",
+        "description": "Returns all leases belonging to the authenticated user.",
+        "responses": {
+          "200": { "description": "List of leases", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Lease" } } } } },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      },
+      "post": {
+        "tags": ["Leases"],
+        "summary": "Create a lease",
+        "description": "Creates a new lease. The endDate must be after startDate.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateLease" } } }
+        },
+        "responses": {
+          "201": { "description": "Created lease", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Lease" } } } },
+          "400": { "description": "Validation error" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      }
+    },
+    "/leases/{id}": {
+      "get": {
+        "tags": ["Leases"],
+        "summary": "Get a lease by ID",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Lease ID" }
+        ],
+        "responses": {
+          "200": { "description": "Lease details", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Lease" } } } },
+          "404": { "description": "Lease not found" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      },
+      "put": {
+        "tags": ["Leases"],
+        "summary": "Update a lease",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Lease ID" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateLease" } } }
+        },
+        "responses": {
+          "200": { "description": "Updated lease", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Lease" } } } },
+          "400": { "description": "Validation error" },
+          "404": { "description": "Lease not found" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      },
+      "delete": {
+        "tags": ["Leases"],
+        "summary": "Delete a lease",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Lease ID" }
+        ],
+        "responses": {
+          "200": { "description": "Deleted lease", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Lease" } } } },
+          "404": { "description": "Lease not found" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      }
+    },
+    "/charges": {
+      "get": {
+        "tags": ["Charges"],
+        "summary": "List charges by lease",
+        "description": "Returns all charges for a given lease. The `leaseId` query parameter is required.",
+        "parameters": [
+          { "name": "leaseId", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Filter charges by lease ID" }
+        ],
+        "responses": {
+          "200": { "description": "List of charges", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Charge" } } } } },
+          "400": { "description": "Missing leaseId parameter" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      },
+      "post": {
+        "tags": ["Charges"],
+        "summary": "Create a charge",
+        "description": "Creates a single charge on a lease. To generate rent charges for all active leases, use the Generate Rent endpoint instead.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateCharge" } } }
+        },
+        "responses": {
+          "201": { "description": "Created charge", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Charge" } } } },
+          "400": { "description": "Validation error" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      }
+    },
+    "/charges/generate-rent": {
+      "post": {
+        "tags": ["Charges"],
+        "summary": "Generate rent charges",
+        "operationId": "generateRentCharges",
+        "description": "Generates RENT charges for all active leases for the specified month.\n\n**Note:** This is actually sent as a POST to `/charges` with `action: \"generateRent\"` in the body. It is listed here separately for clarity.",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GenerateRent" } } }
+        },
+        "responses": {
+          "201": { "description": "Generated charges", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/GenerateRentResponse" } } } },
+          "400": { "description": "Missing month parameter" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      }
+    },
+    "/charges/{id}": {
+      "put": {
+        "tags": ["Charges"],
+        "summary": "Update a charge",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Charge ID" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateCharge" } } }
+        },
+        "responses": {
+          "200": { "description": "Updated charge", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Charge" } } } },
+          "400": { "description": "Validation error" },
+          "404": { "description": "Charge not found" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      },
+      "delete": {
+        "tags": ["Charges"],
+        "summary": "Void a charge",
+        "description": "Voids a charge by setting its status to VOID (soft delete).",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Charge ID" }
+        ],
+        "responses": {
+          "200": { "description": "Voided charge", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Charge" } } } },
+          "404": { "description": "Charge not found" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      }
+    },
+    "/payments": {
+      "get": {
+        "tags": ["Payments"],
+        "summary": "List payments by tenant",
+        "description": "Returns all payments for a given tenant. The `tenantId` query parameter is required.",
+        "parameters": [
+          { "name": "tenantId", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Filter payments by tenant ID" }
+        ],
+        "responses": {
+          "200": { "description": "List of payments", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Payment" } } } } },
+          "400": { "description": "Missing tenantId parameter" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      },
+      "post": {
+        "tags": ["Payments"],
+        "summary": "Record a payment",
+        "description": "Records a payment from a tenant. The payment is automatically allocated against the tenant's outstanding charges (oldest first).",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreatePayment" } } }
+        },
+        "responses": {
+          "201": { "description": "Recorded payment", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Payment" } } } },
+          "400": { "description": "Validation error" },
+          "401": { "description": "Missing or invalid API key" }
+        }
+      }
+    }
+  },
+  "tags": [
+    { "name": "Properties", "description": "Manage rental properties" },
+    { "name": "Units", "description": "Manage units within properties" },
+    { "name": "Tenants", "description": "Manage tenant records" },
+    { "name": "Leases", "description": "Manage lease agreements" },
+    { "name": "Charges", "description": "Manage charges and generate rent" },
+    { "name": "Payments", "description": "Record and track payments" }
+  ]
+}

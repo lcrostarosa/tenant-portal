@@ -2,6 +2,32 @@
 
 A full-featured property management application built with Next.js. 
 
+## Screenshots
+
+### Login
+![Login](docs/screenshots/01-login.png)
+
+### Landlord Dashboard
+![Dashboard](docs/screenshots/02-dashboard.png)
+
+### Properties
+![Properties](docs/screenshots/03-properties.png)
+
+### Tenants
+![Tenants](docs/screenshots/04-tenants.png)
+
+### Billing
+![Billing](docs/screenshots/05-billing.png)
+
+### Maintenance
+![Maintenance](docs/screenshots/06-maintenance.png)
+
+### Leases
+![Leases](docs/screenshots/07-leases.png)
+
+### Tenant Portal
+![Tenant Portal](docs/screenshots/08-tenant-portal.png)
+
 ## Why This Exists
 
 Managing rental properties involves a lot of repetitive work: generating rent charges every month, tracking payments, coordinating maintenance, communicating with tenants. Commercial tools either lock you into their workflow or charge premium prices for basic automation. This app gives me full control over my data with a REST API that lets me integrate with whatever tools I want.
